@@ -13,7 +13,7 @@ conf = {
     'KEY_GENERATOR': lambda x: x.decode('hex'),
     'HASH_KEY_GENERATOR': lambda x: x[:4].decode('hex'),
     'HASH_KEYS_CHECK_FOR_EXPIRY': lambda r: (reduce(lambda p,y :p.randomkey(),
-        xrange(100), r.pipeline()).execute()),
+        xrange(100), r.pipeline(transaction=False)).execute()),
     'COMPRESS_LIB': 'snappy',
     'COMPRESS_MIN_LENGTH': 400,
     'LOG_KEY_ERROR': False
@@ -150,7 +150,7 @@ class SessionStore(SessionBase):
                     logger.warning('misconfigured key-generator or bad key "%s"' % session_key)
 
         def save(self, must_create=False):
-            pipe = self._redis.pipeline()
+            pipe = self._redis.pipeline(transaction=False)
             if must_create:
                 pipe = pipe.setnx
             else:
